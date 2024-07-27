@@ -1,7 +1,6 @@
 import requests
 import csv
 import pandas as pd
-import numpy as np
 import tqdm
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -75,9 +74,11 @@ def create_csv_file_for_Hacker_News_Comments(data):
     Returns:
         None
     """
-    
-    for kids in data:
-        for kid in kids:
+    kids_data = []
+    for story in data:
+        # if story['kids'] == None:
+        #     continue
+        for kid in story['kids'][:1]:
             try:
                 kid_url = f'/item/{kid}'
                 kid_data = get_data_HN_from_url(kid_url)
@@ -85,7 +86,7 @@ def create_csv_file_for_Hacker_News_Comments(data):
             except:
                 continue
     file_name = 'hacker news top stories top level comments.csv'
-    create_csv_file(file_name, headers, kid_data)
+    create_csv_file(file_name, headers, kids_data)
 
 def create_csv_file_for_Hacker_News():
     """
@@ -98,7 +99,7 @@ def create_csv_file_for_Hacker_News():
     top_stories_ids = get_data_HN_from_url(top_stories_url)
 
     #list for story data
-    storys_data = []
+    stories_data = []
 
     #For each story ID, fetch the details (e.g., title, URL, score, author, time, and number of comments).
     for story_id in tqdm.tqdm(top_stories_ids[:5], desc='Fetching Story Details'):
@@ -107,12 +108,11 @@ def create_csv_file_for_Hacker_News():
         
         if story_data['type'] == 'story':
             # story_data['time'] = pd.to_datetime(story_data['time'], unit='s')
-            storys_data.append(story_data)
+            stories_data.append(story_data)
 
     file_name = 'hacker news story details.csv'
-    create_csv_file(file_name, headers, storys_data)
-    
-    create_csv_file_for_Hacker_News_Comments(storys_data)
+    create_csv_file(file_name, headers, stories_data)
+    create_csv_file_for_Hacker_News_Comments(stories_data)
     
 def story_posting_by_day(data):
     """
